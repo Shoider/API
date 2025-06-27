@@ -1,0 +1,159 @@
+# CONAGUA - PFSense
+
+Este proyecto es una API Rest enfocada en almacenar y reportar el uso de la herramienta PFSense, enfocada en
+rastrear el uso de las reglas personalizadas del firewall, con el fin de detectar las que no han tenido uso en un lapso de tiempo establecido.
+
+## Tabla de Contenidos
+
+1.  [Descripción](#descripcion)
+2.  [Requisitos](#requisitos)
+3.  [Instalación](#instalacion)
+4.  [Uso](#uso)
+5.  [Desarrollo](#desarrollo)
+
+---
+
+## Descripción
+
+El api aun esta en desarrollo, mas adelante de definira una descipcion breve.
+
+## Requisitos
+
+* Python 3.x instalado.
+* `pip` (gestor de paquetes de Python).
+
+## Instalación
+
+1.  **Clonar el Repositorio (Opcional)**
+
+    Si aún no tienes el código localmente, clona el repositorio desde GitHub:
+
+    ```bash
+    git clone https://github.com/Shoider/API_PFSense
+    cd API_PFSense
+    ```
+
+2.  **Crear un Entorno Virtual (Recomendado)**
+
+    Es recomendable crear un entorno virtual para aislar las dependencias del proyecto.
+
+    ```bash
+    py -m venv venv
+    ```
+
+3.  **Activar el Entorno Virtual**
+
+    Activa el entorno virtual creado:
+
+    * **Windows:**
+
+        ```bash
+        venv\Scripts\activate
+        ```
+
+    * **macOS y Linux:**
+
+        ```bash
+        source venv/bin/activate
+        ```
+
+4.  **Instalar Dependencias**
+
+    Instala las dependencias del proyecto desde el archivo `requirements.txt`:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Uso
+
+1.  **Ejecutar la API**
+
+    Ejecuta la API usando el siguiente comando:
+
+    ```bash
+    python app.py # o el nombre del archivo principal de tu API
+    ```
+
+2.  **Acceder a la API**
+
+    La API estará disponible en `http://localhost:8000` (o el puerto que hayas configurado).
+
+## Desarrollo
+
+Si deseas realizar cambios en el código fuente y desarrollar localmente, sigue estos pasos:
+
+1.  **Realizar Cambios**
+
+    Realiza los cambios necesarios en el código fuente.
+
+2.  **Reiniciar la API**
+
+    Reinicia la API para que los cambios surtan efecto.
+
+3.  **Probar los Cambios**
+
+    Prueba los cambios utilizando herramientas como `curl` o Postman.
+
+4.  **Actualizar Dependencias (Si es necesario)**
+
+    Si agregas o actualizas dependencias, actualiza el archivo `requirements.txt`:
+
+    ```bash
+    pip freeze > requirements.txt
+    ```
+
+---
+
+
+# API
+Pruebas
+
+Ejemplos
+
+"Obtener reglas inactivas"
+Formato YYYY-MM-DD"
+curl -X POST http://192.168.137.202:5001/api/v1/inactive -H "Content-Type: application/json" -d '{"fechaInicio": "2025-03-01", "fechaFin": "2025-07-01"}'
+
+curl -X GET "http://192.168.137.202:5001/api/v1/inactive?fechaInicio=2025-03-01&fechaFin=2025-07-01"
+
+Healtcheck
+curl -X GET http://localhost:5001/api/v1/healthcheck
+curl -X GET http://192.168.137.202:5001/api/v1/healthcheck
+curl -X GET http://127.0.0.1:5001/api/v1/healthcheck
+
+Variables de Entorno: (DEBUG)
+export POSTGRES_USER=api_user
+;export POSTGRES_PASSWORD=pass
+;export POSTGRES_HOST=localhost
+
+export POSTGRES_USER=admin
+;export POSTGRES_PASSWORD=pass
+;export POSTGRES_HOST=172.17.0.3
+
+Entrar a la base de datos
+psql -d test_db -U admin -h localhost
+
+Hacer select:
+
+SELECT
+    timestamp,
+    bytes_matched
+FROM
+    rule_metrics
+WHERE
+    rule_id = {TU_RULE_ID_AQUI}
+ORDER BY
+    timestamp ASC;
+
+
+Ejemplo: para 250624_ACCS_x_SSH_Jesus_Torres
+SELECT
+    timestamp,
+    bytes_matched
+FROM
+    rule_metrics
+WHERE
+    rule_id = 1750806086
+ORDER BY
+    timestamp ASC;

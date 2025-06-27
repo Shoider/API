@@ -1,0 +1,20 @@
+*.pyc
+__pycache__
+*.log
+*.env
+*.pyc
+__pycache__
+*.log
+*.env
+.DS_Store
+Dockerfile
+venv
+.git
+.dockerignore
+.gitignore
+readme
+
+# DEBUG
+rule_metrics_data.sql
+dataGen.py
+schema.log
