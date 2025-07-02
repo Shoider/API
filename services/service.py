@@ -28,7 +28,7 @@ class Service:
         session = None
         try:
             session = self.db_model.get_session()
-            
+
             # Añadir a rules
             self.logger.debug("Añadiendo/Actualizando datos en la tabla 'rules'")
             self._upsert_rules(session, rule_metrics_list)
@@ -103,7 +103,7 @@ class Service:
         log_objects = []
         for logs_data in inactive_rules_data:
             log_objects.append(InactiveRuleLog(
-                rule_id=logs_data['id'],
+                rule_id=logs_data['rule_id'],
             ))
         session.add_all(log_objects) # Agregar todos a la vez
         self.logger.debug(f"Added {len(log_objects)} inactive rule logs in batch.")
