@@ -18,7 +18,7 @@ class PFRoute(Blueprint):
     def register_routes(self):
         """Function to register the routes"""
         self.route("/api/v1/shell", methods=["POST"])(self.actualizacion)
-        self.route("/api/v1/token", methods=["POST"])(self.token)
+        self.route("/api/v1/data", methods=["POST"])(self.token)
         self.route("/api/v1/inactive", methods=["GET"])(self.InactiveRules)
         self.route("/api/v1/healthcheck", methods=["GET"])(self.healthcheck)
 
@@ -99,23 +99,16 @@ class PFRoute(Blueprint):
                     parsed_data.append(parsed_rule)
 
             # Validacion con Marshmallow
-            # The schema should be initialized with many=True because parsed_data is a list
             schema_instance = self.schema_class(many=True)
 
             validated_data = schema_instance.load(parsed_data)
-
             self.logger.info(f"Datos validados correctamente: {validated_data}")
 
-            result = self.service.add_rule_metrics(validated_data)
-
-            # Se le manda la data a otro endpoint para que el se encargue de agregarla a la tabla de reglas sin uso
-
-            filteredData = [validated_data.get('id'), validated_data.get('label')]
-
-            result2 = self.Zero(filteredData)
+            # Se le llama al servicio para guardar los datos
+            result = self.service.add_metrics(validated_data)
 
             if (result == True):
-                    return jsonify({"message": "Registro exitoso", "data": validated_data, "filtrado": str(result2)}), 200
+                return jsonify({"message": "Registro exitoso", "data": validated_data}), 200
             else:
                 return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data}), 400
             
