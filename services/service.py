@@ -3,19 +3,19 @@ from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func, and_, text
 from sqlalchemy.dialects import postgresql
-from models.model import RuleMetric
+from models.model import RuleMetric, Rule, InactiveRuleLog
 from logger.logger import Logger
 
 class Service:
-    """Service class to that implements the logic of the CRUD operations for tickets"""
+    """Service class to that implements the logic"""
 
     def __init__(self, db_model):
         self.logger = Logger()
         self.db_model = db_model
 
-    def add_rule_metrics(self, rule_metrics_list: list[dict]) -> bool:
+    def add_metrics(self, rule_metrics_list: list[dict]) -> bool:
         """
-        Adds a list of parsed rule metrics to the database.
+        Adds a list of parsed to the database.
         This method handles the business logic for saving rule metrics.
 
         Args:
@@ -24,36 +24,89 @@ class Service:
         Returns:
             bool: True if insertion was successful, False otherwise.
         """
+        self.logger.debug(f"Datos recibidos en add_metrics: {rule_metrics_list}")
         session = None
         try:
-            session = self.db_model.get_session() # Obtiene la sesión de la capa de modelo
-            for metric_data in rule_metrics_list:
-                metric = RuleMetric(
-                    rule_id=metric_data['id'],
-                    rule_label=metric_data['label'],
-                    evaluations=metric_data['evaluations'],
-                    packets_matched=metric_data['packets_matched'],
-                    bytes_matched=metric_data['bytes_matched'],
-                    states_created=metric_data['states_created'],
-                    state_packets=metric_data['state_packets'],
-                    state_bytes=metric_data['state_bytes'],
-                    last_field=metric_data.get('last_field')
-                )
-                session.add(metric)
+            session = self.db_model.get_session()
+            
+            # Añadir a rules
+            self.logger.debug("Añadiendo/Actualizando datos en la tabla 'rules'")
+            self._upsert_rules(session, rule_metrics_list)
+
+            # Añadir rule metrics
+            self.logger.debug("Añadiendo datos en la tabla 'rule_metrics'")
+            self._add_rule_metrics(session, rule_metrics_list)
+
+            # Añadir inactive rule logs
+            self.logger.debug("Añadiendo datos en la tabla 'inactive_rule_log'")
+            # Logica para encontrar reglas sin uso
+            inactive_rules = self.get_inactive_rules_from_this_batch(rule_metrics_list)
+            self.logger.debug(f"Lista de reglas inactivas: {inactive_rules}")
+            self._add_inactive_rules_log(session, inactive_rules)
+
             session.commit()
-            self.logger.info(f"Successfully added {len(rule_metrics_list)} rule metrics to DB.")
+            self.logger.info(f"Batch de métricas procesado y guardado exitosamente. Reglas: {len(rule_metrics_list)}")
+
             return True
         except SQLAlchemyError as e:
             if session:
                 session.rollback()
-            self.logger.critical(f"Database error while adding rule metrics: {e}")
+                self.logger.debug("Rollback")
+            self.logger.critical(f"Database error during batch insertion: {e}")
             return False
         except Exception as e:
-            self.logger.critical(f"An unexpected error occurred in service layer while adding rule metrics: {e}")
+            self.logger.critical(f"An unexpected error occurred in service layer during batch insertion: {e}")
             return False
         finally:
             if session:
                 session.close()
+                self.logger.debug("Sesion cerrada")
+
+    def _upsert_rules(self, session, rule_metrics_list: list[dict]):
+        """Internal method to add/update rules using ON CONFLICT for efficiency."""
+        # Prepara los valores para la inserción en lote
+        rule_values = []
+        for data in rule_metrics_list:
+            rule_values.append({
+                'rule_id': data['id'],
+                'rule_label': data['label']
+            })
+
+        # Construye la declaración de inserción con ON CONFLICT DO UPDATE
+        insert_stmt = postgresql.insert(Rule).values(rule_values)
+        on_conflict_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=['rule_id'], # El campo que define la unicidad
+            set_={'rule_label': insert_stmt.excluded.rule_label} # Actualiza el label si cambia
+        )
+        session.execute(on_conflict_stmt)
+        self.logger.debug(f"Upserted {len(rule_values)} rules in batch.")
+    
+    def _add_rule_metrics(self, session, rule_metrics_list: list[dict]):
+        """Internal method to add rule metrics in batch."""
+        metric_objects = []
+        for metric_data in rule_metrics_list:
+            metric_objects.append(RuleMetric(
+                rule_id=metric_data['id'],
+                evaluations=metric_data['evaluations'],
+                packets_matched=metric_data['packets_matched'],
+                bytes_matched=metric_data['bytes_matched'],
+                states_created=metric_data['states_created'],
+                state_packets=metric_data['state_packets'],
+                state_bytes=metric_data['state_bytes'],
+                last_field=metric_data.get('last_field')
+            ))
+        session.add_all(metric_objects) # Mejorar rendimiento: agregar todos a la vez
+        self.logger.debug(f"Added {len(metric_objects)} rule metrics in batch.")
+
+    def _add_inactive_rules_log(self, session, inactive_rules_data: list[dict]):
+        """Internal method to add inactive rule logs in batch."""
+        log_objects = []
+        for logs_data in inactive_rules_data:
+            log_objects.append(InactiveRuleLog(
+                rule_id=logs_data['id'],
+            ))
+        session.add_all(log_objects) # Agregar todos a la vez
+        self.logger.debug(f"Added {len(log_objects)} inactive rule logs in batch.")
 
     def get_inactive_rules(self, start_date: datetime, end_date: datetime) -> list[dict]:
         session = None
@@ -113,3 +166,27 @@ class Service:
         finally:
             if session:
                 session.close()
+
+    def get_inactive_rules_from_this_batch(self, rule_metrics_list: list[dict]) -> list[dict]:
+        """
+        Filters the given list of rule metrics to identify rules with 0 bytes_matched.
+        These are considered "inactive" for the purpose of logging in inactive_rule_log.
+
+        Args:
+            rule_metrics_list: A list of dictionaries, where each dictionary
+                               represents a parsed pfctl rule metric from the current batch.
+
+        Returns:
+            list[dict]: A list of dictionaries, containing only the rule_id and rule_label
+                        for rules that had 0 bytes_matched in this batch.
+        """
+        inactive_rules = []
+        for metric_data in rule_metrics_list:
+            if metric_data.get('bytes_matched', 0) == 0:
+                # Solo necesitamos el id y el label para el log de inactividad
+                inactive_rules.append({
+                    'rule_id': metric_data['id'],
+                    'rule_label': metric_data['label']
+                })
+        self.logger.debug(f"Identified {len(inactive_rules)} inactive rules in the current batch.")
+        return inactive_rules

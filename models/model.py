@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timezone
 from logger.logger import Logger
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, DateTime, text
+from sqlalchemy import create_engine, Column, Integer, BigInteger, String, DateTime, text, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.schema import Index
@@ -11,14 +11,29 @@ from sqlalchemy.schema import Index
 # Define la base declarativa
 Base = declarative_base()
 
+# Define tu modelo de tabla para 'rules'
+class Rule(Base):
+    __tablename__ = 'rules'
+
+    rule_id = Column(BigInteger, primary_key=True)
+    rule_label = Column(String(255), nullable=False)
+    rule_description = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        Index('idx_rules_rule_label', 'rule_label'),
+    )
+
+    def __repr__(self):
+        return f"<Rule(rule_id={self.rule_id}, rule_label='{self.rule_label}', created_at='{self.created_at}')>"
+
 # Define tu modelo de tabla para 'rule_metrics'
 class RuleMetric(Base):
     __tablename__ = 'rule_metrics'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
-    rule_id = Column(BigInteger, nullable=False)
-    rule_label = Column(String(255), nullable=False)
+    rule_id = Column(BigInteger, ForeignKey('rules.rule_id', ondelete='RESTRICT'), nullable=False)
     evaluations = Column(BigInteger, nullable=False)
     packets_matched = Column(BigInteger, nullable=False)
     bytes_matched = Column(BigInteger, nullable=False)
@@ -34,7 +49,23 @@ class RuleMetric(Base):
     )
 
     def __repr__(self):
-        return f"<RuleMetric(id={self.id}, rule_label='{self.rule_label}', timestamp='{self.timestamp}')>"
+        return f"<RuleMetric(id={self.id}, rule_id={self.rule_id}, timestamp='{self.timestamp}')>"
+    
+# Define tu modelo de tabla para 'inactive_rule_log'
+class InactiveRuleLog(Base):
+    __tablename__ = 'inactive_rule_log'
+
+    log_id = Column(Integer, primary_key=True, autoincrement=True)
+    rule_id = Column(BigInteger, ForeignKey('rules.rule_id', ondelete='RESTRICT'), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        Index('idx_inactive_rule_log_rule_id', 'rule_id'),
+        Index('idx_inactive_rule_log_created_at', 'created_at'),
+    )
+
+    def __repr__(self):
+        return f"<InactiveRuleLog(id={self.log_id}, rule_id='{self.rule_id}', created_at='{self.created_at}')>"
 
 
 class BDModel:
@@ -69,9 +100,11 @@ class BDModel:
                 connection.execute(text("SELECT 1"))
                 self.logger.info("Connected to PostgreSQL successfully.")
             
-            # Crear la tabla si no existe (importante: RuleMetric debe estar definido)
+            # Crear las tablas si no existen (importante: Las tablas deben estar definidas)
             Base.metadata.create_all(self.engine)
+            self.logger.info(f"Table '{Rule.__tablename__}' ensured to exist.")
             self.logger.info(f"Table '{RuleMetric.__tablename__}' ensured to exist.")
+            self.logger.info(f"Table '{InactiveRuleLog.__tablename__}' ensured to exist.")
 
             self.Session = sessionmaker(bind=self.engine)
 

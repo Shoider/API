@@ -81,7 +81,7 @@ class PFRoute(Blueprint):
             data: Un diccionario.
 
         Returns:
-            No se
+            validated_data: Datos registrados en la base de datos
         """
         try:
             # Traer datos
@@ -108,9 +108,14 @@ class PFRoute(Blueprint):
 
             result = self.service.add_rule_metrics(validated_data)
 
+            # Se le manda la data a otro endpoint para que el se encargue de agregarla a la tabla de reglas sin uso
+
+            filteredData = [validated_data.get('id'), validated_data.get('label')]
+
+            result2 = self.Zero(filteredData)
+
             if (result == True):
-                return jsonify({"message": "Registro exitoso", "data": validated_data}), 200
-            
+                    return jsonify({"message": "Registro exitoso", "data": validated_data, "filtrado": str(result2)}), 200
             else:
                 return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data}), 400
             
@@ -225,6 +230,39 @@ class PFRoute(Blueprint):
         except Exception as e:
             self.logger.critical(f"Error critico: {e}")
             return jsonify({"error": "Error interno"}), 500
+        
+    def Zero(self, data):
+        """
+        Endpoint para actualizar la tabla que contiene los registros con 0 bytes usados.
+        """
+        self.logger.debug("Llamada iniciada")
+        try:
+            self.logger.debug(f"Datos recibidos en Zero {data}")
+
+            self.logger.debug("Llamando al servicio")
+
+
+
+            result = self.service.dasdasd
+
+            
+            self.logger.debug("Tabla de reglas sin uso actualizada")
+
+            self.logger.info(f"Datos agregados a tabla sin uso {data}")
+
+            # Las fechas ya son objetos datetime.date gracias a fields.Date
+
+            # Convierte datetime.date a datetime.datetime y establece la hora
+            # Para start_date, queremos el inicio del día
+
+            if (result == True):
+                return result
+            else:
+                return result
+
+        except Exception as e:
+            self.logger.critical(f"Error critico: {e}")
+            return False
 
     def healthcheck(self):
         """Function to check the health of the services API inside the docker container"""

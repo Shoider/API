@@ -157,3 +157,12 @@ WHERE
     rule_id = 1750806086
 ORDER BY
     timestamp ASC;
+
+
+#NOTAS
+
+Otra tabla para agregar solo registros con 0 porque se borran a cada rato, estos los vamos a trakear cada dia.
+
+Tal vez hacer una alerta o algo asi, ademas hacer un else para tener intensos de llamadas al api.
+
+Preguntat por el servidor y otras cosas
