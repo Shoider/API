@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timezone
 from logger.logger import Logger
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, DateTime, text, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, BigInteger, String, DateTime, text, ForeignKey, Date
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.schema import Index
@@ -66,6 +66,23 @@ class InactiveRuleLog(Base):
 
     def __repr__(self):
         return f"<InactiveRuleLog(id={self.log_id}, rule_id='{self.rule_id}', created_at='{self.created_at}')>"
+    
+# Define tu modelo de tabla para 'monthly_execution_counts'
+class MonthlyExecutionCount(Base):
+    __tablename__ = 'monthly_execution_counts'
+
+    count_id = Column(Integer, primary_key=True, autoincrement=True)
+    month_start_date = Column(Date, nullable=False, unique=True) # Unique constraint a nivel de columna
+    execution_count = Column(Integer, nullable=False, default=0)
+    last_updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        # No se necesita Index explícito si month_start_date ya es UNIQUE
+        # Index('idx_monthly_execution_counts_month', 'month_start_date'),
+    )
+
+    def __repr__(self):
+        return f"<MonthlyExecutionCount(month={self.month_start_date}, count={self.execution_count})>"
 
 
 class BDModel:
@@ -84,7 +101,7 @@ class BDModel:
         db_user = os.environ.get("POSTGRES_USER", "api_user")
         db_password = os.environ.get("POSTGRES_PASSWORD", "pass")
         db_host = os.environ.get("POSTGRES_HOST", "localhost")
-        db_port = os.environ.get("POSTGRES_PORT", "5432")
+        db_port = os.environ.get("POSTGRES_PORT", "5002")
 
         if not all([db_user, db_password, db_host]):
             self.logger.critical("Database environment variables are required: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")
@@ -105,6 +122,7 @@ class BDModel:
             self.logger.info(f"Table '{Rule.__tablename__}' ensured to exist.")
             self.logger.info(f"Table '{RuleMetric.__tablename__}' ensured to exist.")
             self.logger.info(f"Table '{InactiveRuleLog.__tablename__}' ensured to exist.")
+            self.logger.info(f"Table '{MonthlyExecutionCount.__tablename__}' ensured to exist.")
 
             self.Session = sessionmaker(bind=self.engine)
 

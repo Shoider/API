@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func, and_, text
 from sqlalchemy.dialects import postgresql
-from models.model import RuleMetric, Rule, InactiveRuleLog
+from models.model import RuleMetric, Rule, InactiveRuleLog, MonthlyExecutionCount
 from logger.logger import Logger
 
 class Service:
@@ -12,6 +12,31 @@ class Service:
     def __init__(self, db_model):
         self.logger = Logger()
         self.db_model = db_model
+
+    def _upsert_monthly_execution_count(self, session) -> None:
+        """
+        Increments the execution count for the current month.
+        Inserts if the month does not exist, updates if it does.
+        """
+        # Calcular el primer día del mes actual en UTC
+        today_utc = datetime.now(timezone.utc)
+        current_month_start_date = today_utc.replace(day=1, hour=0, minute=0, second=0, microsecond=0).date()
+
+        # Usar INSERT ... ON CONFLICT DO UPDATE
+        insert_stmt = postgresql.insert(MonthlyExecutionCount).values(
+            month_start_date=current_month_start_date,
+            execution_count=1, # Si es una nueva entrada, el conteo inicial es 1
+            last_updated_at=today_utc
+        )
+        on_conflict_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=['month_start_date'], # La columna con la restricción UNIQUE
+            set_={
+                'execution_count': MonthlyExecutionCount.execution_count + 1, # Incrementa el conteo
+                'last_updated_at': today_utc # Actualiza la marca de tiempo
+            }
+        )
+        session.execute(on_conflict_stmt)
+        self.logger.debug(f"Monthly execution count updated for {current_month_start_date}.")
 
     def add_metrics(self, rule_metrics_list: list[dict]) -> bool:
         """
@@ -44,9 +69,12 @@ class Service:
             self.logger.debug(f"Lista de reglas inactivas: {inactive_rules}")
             self._add_inactive_rules_log(session, inactive_rules)
 
+            # Incrementar el contador de ejecuciones mensuales
+            self.logger.debug("Incrementando el contador de ejecuciones mensuales.")
+            self._upsert_monthly_execution_count(session) # Llamada a la nueva función
+
             session.commit()
             self.logger.info(f"Batch de métricas procesado y guardado exitosamente. Reglas: {len(rule_metrics_list)}")
-
             return True
         except SQLAlchemyError as e:
             if session:

@@ -165,4 +165,11 @@ Otra tabla para agregar solo registros con 0 porque se borran a cada rato, estos
 
 Tal vez hacer una alerta o algo asi, ademas hacer un else para tener intensos de llamadas al api.
 
-Preguntat por el servidor y otras cosas
+Preguntar por el servidor y IP para probar la comunicacion.
+
+Crear procedimieto almacenado dentro de postgres para analizar cuales reglas estuvieron inacticas durante todo el mes
+es decir, que cada ejecucion se les mando a la tabla de reglas inactivas.
+
+Programar con una herramienta para que se ejecute el procedimiento almacenado cada fin de mes. (pgAgent) ó (Cron)
+
+Debo hacer una tabla contadora de cada mes con un id secuencial para que aumente cada ejecucion del api, y se actualcie cada mes, Al final del mes, el procedimiento almacenado debera ir por ese numero de ejecuciones y considerarlo para saber cuantas veces debe estar una regla en la tabla de relgas inactivas para agregarla a la talb a de regals inactivas mensuales.
