@@ -5,7 +5,7 @@ class Logger:
 
     def __init__(self, log_file="pfSense.log", level=log.DEBUG):
         # Se comenta para el debug
-        # os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
         
         log.basicConfig(
             level=level,
