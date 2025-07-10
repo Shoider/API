@@ -32,3 +32,10 @@ services:
       TZ: America/Mexico_City
     depends_on:
       - postgres
+
+volumes:
+  pgdata:
+
+networks:
+  local:
+    driver: bridge
