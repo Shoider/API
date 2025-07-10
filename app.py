@@ -7,12 +7,12 @@ from services.service import Service
 from models.model import BDModel
 
 #ESTO se comenta
-from flask_cors import CORS
+#from flask_cors import CORS
 
 app = Flask(__name__)
 
 #ESTO se comenta DEBUG
-CORS(app)
+#CORS(app)
 
 logger = Logger()
 
