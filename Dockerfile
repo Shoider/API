@@ -24,6 +24,6 @@ EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail http://pf_api:8000/api/v1/healthcheck || exit 1
 
-USER app
+#USER app
 
 ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 1", "app:app"]
