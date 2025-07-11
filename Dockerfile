@@ -15,8 +15,11 @@ RUN mkdir -p /app/data && \
     chmod -R 777 /app/data
 
 RUN apk update && \
-    apk add --no-cache tzdata curl && \
+    apk add --no-cache tzdata curl faketime && \
     rm -rf /var/cache/apk/*
+
+# Instala faketime y tus otras dependencias
+RUN apt-get update && apt-get install -y faketime && rm -rf /var/lib/apt/lists/*
     
 RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 
