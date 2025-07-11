@@ -1,10 +1,13 @@
-FROM python:3.13.4-alpine3.22
+FROM python:latest
 
 WORKDIR /app
 
-RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
+# Crear grupo y usuario 'app'
+RUN groupadd -g 1000 app && \
+    useradd -m -u 1000 -g app app
 
-COPY --chown=app . .
+# Copiar archivos y cambiar propietario
+COPY . .
 
 RUN mkdir -p /app/logs && \
     chown -R app:app /app/logs && \
@@ -14,19 +17,17 @@ RUN mkdir -p /app/data && \
     chown -R app:app /app/data && \
     chmod -R 777 /app/data
 
-RUN apk update && \
-    apk add --no-cache tzdata curl faketime && \
-    rm -rf /var/cache/apk/*
+# Instalar dependencias del sistema
+RUN apt-get update && \
+    apt-get install -y tzdata curl faketime && \
+    rm -rf /var/lib/apt/lists/*
 
-# Instala faketime y tus otras dependencias
-RUN apt-get update && apt-get install -y faketime && rm -rf /var/lib/apt/lists/*
-    
 RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 
-EXPOSE 8000 
+EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail http://pf_api:8000/api/v1/healthcheck || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail http://localhost:8000/api/v1/healthcheck || exit 1
 
 USER app
 
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 1", "app:app"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 4", "app:app"]
