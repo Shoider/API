@@ -33,11 +33,8 @@ class PFRoute(Blueprint):
             self.logger.error(f"Error fetching request data: {e}")
             return 500, "Error fetching request data", None
         
-    # --- Define your parsing function here or import it ---
     def parse_pfctl_line(self, line: str) -> dict:
-        """
-        Parses a single pfctl statistics line.
-        """
+        """Parses a single pfctl statistics line."""
         pattern = re.compile(
             r'^(USER_RULE:?\s*(.*?))\s+id:(\d+)\s+'  # USER_RULE prefix, label, id
             r'(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)' # 7 numeric counters
@@ -74,6 +71,24 @@ class PFRoute(Blueprint):
             print(f"WARNING: Could not parse line: {line}")
             return None
 
+    def merge_duplicate_rules(self, rules) -> dict:
+        """Merge the duplicated rules registered"""
+        merged = {}
+        for rule in rules:
+            rule_id = rule['id']
+            if rule_id in merged:
+                # Suma los valores numéricos
+                merged[rule_id]['evaluations'] += rule['evaluations']
+                merged[rule_id]['packets_matched'] += rule['packets_matched']
+                merged[rule_id]['bytes_matched'] += rule['bytes_matched']
+                merged[rule_id]['states_created'] += rule['states_created']
+                merged[rule_id]['state_packets'] += rule['state_packets']
+                merged[rule_id]['state_bytes'] += rule['state_bytes']
+                merged[rule_id]['last_field'] += rule['last_field']
+            else:
+                merged[rule_id] = rule.copy()
+        return list(merged.values())
+
     def token(self):
         """
         Esta ruta debera de recibir datos y mostrarlos
@@ -98,10 +113,13 @@ class PFRoute(Blueprint):
                 if parsed_rule:
                     parsed_data.append(parsed_rule)
 
+            # Revisar si hay datos duplicados para sumarlos y guardarlos juntos
+            filtered_data = self.merge_duplicate_rules(parsed_data)
+            self.logger.debug(f"Datos filtrados: {filtered_data}")
+
             # Validacion con Marshmallow
             schema_instance = self.schema_class(many=True)
-
-            validated_data = schema_instance.load(parsed_data)
+            validated_data = schema_instance.load(filtered_data)
             self.logger.info(f"Datos validados correctamente: {validated_data}")
 
             # Se le llama al servicio para guardar los datos
