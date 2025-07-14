@@ -41,6 +41,6 @@ if __name__ == "__main__":
         #app.run(host="0.0.0.0", port=5001, debug=True)
         logger.info("Application started")
     finally:
-        #db_conn.close_connection()
+        db_model.close_connection()
         logger.info("Application closed")
         logger.info("Postgres connection closed")

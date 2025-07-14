@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify
 from logger.logger import Logger
 from marshmallow import ValidationError
 from datetime import datetime, time
