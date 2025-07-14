@@ -36,7 +36,7 @@ class Service:
             }
         )
         session.execute(on_conflict_stmt)
-        self.logger.debug(f"Monthly execution count updated for {current_month_start_date}.")
+        self.logger.debug(f"Contador mensual de ejecuciones actualizado {current_month_start_date}.")
 
     def add_metrics(self, rule_metrics_list: list[dict]) -> bool:
         """
@@ -80,10 +80,10 @@ class Service:
             if session:
                 session.rollback()
                 self.logger.debug("Rollback")
-            self.logger.critical(f"Database error during batch insertion: {e}")
+            self.logger.critical(f"Error en la base de datos durante la insercion: {e}")
             return False
         except Exception as e:
-            self.logger.critical(f"An unexpected error occurred in service layer during batch insertion: {e}")
+            self.logger.critical(f"Ocurrio un error inesperado en el servicio durante la insercion: {e}")
             return False
         finally:
             if session:
@@ -107,7 +107,7 @@ class Service:
             set_={'rule_label': insert_stmt.excluded.rule_label} # Actualiza el label si cambia
         )
         session.execute(on_conflict_stmt)
-        self.logger.debug(f"Upserted {len(rule_values)} rules in batch.")
+        self.logger.debug(f"{len(rule_values)} reglas actualizadas en batch.")
     
     def _add_rule_metrics(self, session, rule_metrics_list: list[dict]):
         """Internal method to add rule metrics in batch."""
@@ -124,7 +124,7 @@ class Service:
                 last_field=metric_data.get('last_field')
             ))
         session.add_all(metric_objects) # Mejorar rendimiento: agregar todos a la vez
-        self.logger.debug(f"Added {len(metric_objects)} rule metrics in batch.")
+        self.logger.debug(f"{len(metric_objects)} rule metrics agregadas en batch.")
 
     def _add_inactive_rules_log(self, session, inactive_rules_data: list[dict]):
         """Internal method to add inactive rule logs in batch."""
@@ -134,7 +134,7 @@ class Service:
                 rule_id=logs_data['rule_id'],
             ))
         session.add_all(log_objects) # Agregar todos a la vez
-        self.logger.debug(f"Added {len(log_objects)} inactive rule logs in batch.")
+        self.logger.debug(f"{len(log_objects)} inactive rule logs agregadas en batch.")
 
     def get_inactive_rules(self, start_date: datetime, end_date: datetime) -> list[dict]:
         session = None
@@ -216,5 +216,5 @@ class Service:
                     'rule_id': metric_data['id'],
                     'rule_label': metric_data['label']
                 })
-        self.logger.debug(f"Identified {len(inactive_rules)} inactive rules in the current batch.")
+        self.logger.info(f"Se detectaron {len(inactive_rules)} reglas inactivas en batch.")
         return inactive_rules
