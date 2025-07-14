@@ -17,8 +17,7 @@ class PFRoute(Blueprint):
 
     def register_routes(self):
         """Function to register the routes"""
-        self.route("/api/v1/shell", methods=["POST"])(self.actualizacion)
-        self.route("/api/v1/data", methods=["POST"])(self.token)
+        self.route("/api/v1/data", methods=["POST"])(self.update)
         self.route("/api/v1/inactive", methods=["GET"])(self.InactiveRules)
         self.route("/api/v1/healthcheck", methods=["GET"])(self.healthcheck)
 
@@ -88,7 +87,7 @@ class PFRoute(Blueprint):
                 merged[rule_id] = rule.copy()
         return list(merged.values())
 
-    def token(self):
+    def update(self):
         """
         Esta ruta debera de recibir datos y mostrarlos
         Args:
@@ -101,7 +100,8 @@ class PFRoute(Blueprint):
             # Traer datos
             raw_lines = request.get_json()
             if not raw_lines:
-                return jsonify({"error": "No data sent"}), 400
+                self.logger.error(f"No se recibierón datos")
+                return jsonify({"error": "No se recibieron datos"}), 400
             
             self.logger.debug(f"Datos recibidos: {raw_lines}")
 
@@ -114,19 +114,20 @@ class PFRoute(Blueprint):
 
             # Revisar si hay datos duplicados para sumarlos y guardarlos juntos
             filtered_data = self.merge_duplicate_rules(parsed_data)
-            self.logger.debug(f"Datos filtrados: {filtered_data}")
 
             # Validacion con Marshmallow
             schema_instance = self.schema_class(many=True)
             validated_data = schema_instance.load(filtered_data)
-            self.logger.info(f"Datos validados correctamente: {validated_data}")
+            self.logger.debug(f"Datos validados correctamente: {validated_data}")
 
             # Se le llama al servicio para guardar los datos
             result = self.service.add_metrics(validated_data)
 
             if (result == True):
+                self.logger.info("Registro exitoso")
                 return jsonify({"message": "Registro exitoso", "data": validated_data}), 200
             else:
+                self.logger.info("Ocurrio un error al guardar la informacion en la base de datos")
                 return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data}), 400
             
         except ValidationError as err:
