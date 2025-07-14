@@ -52,8 +52,7 @@ class PFRoute(Blueprint):
             states_created = int(match.group(7))
             state_packets = int(match.group(8))
             state_bytes = int(match.group(9))
-            last_field = int(match.group(10))
-
+            input_output = int(match.group(10))
             rule_id = int(match.group(3))
             
             return {
@@ -65,7 +64,7 @@ class PFRoute(Blueprint):
                 "states_created": states_created,
                 "state_packets": state_packets,
                 "state_bytes": state_bytes,
-                "last_field": last_field
+                "input_output": input_output
             }
         else:
             print(f"WARNING: Could not parse line: {line}")
@@ -84,7 +83,7 @@ class PFRoute(Blueprint):
                 merged[rule_id]['states_created'] += rule['states_created']
                 merged[rule_id]['state_packets'] += rule['state_packets']
                 merged[rule_id]['state_bytes'] += rule['state_bytes']
-                merged[rule_id]['last_field'] += rule['last_field']
+                merged[rule_id]['input_output'] += rule['input_output']
             else:
                 merged[rule_id] = rule.copy()
         return list(merged.values())
@@ -129,63 +128,6 @@ class PFRoute(Blueprint):
                 return jsonify({"message": "Registro exitoso", "data": validated_data}), 200
             else:
                 return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data}), 400
-            
-        except ValidationError as err:
-            messages = err.messages
-            self.logger.warning("Ocurrieron errores de validación")
-            self.logger.info(f"Errores de validación completos: {messages}")
-            
-            # Otro error de validacion
-            return jsonify({"error": "Datos invalidos"}), 422
-        except Exception as e:
-            self.logger.critical(f"Error critico: {e}")
-            return jsonify({"error": "Error interno"}), 500
-        finally:
-            # Eliminar el directorio temporal
-            self.logger.info("Función finalizada")
-
-    def actualizacion(self):
-        """
-        Esta ruta debera de recibir datos y guardarlos en una base de datos
-
-        Args:
-            data: Un diccionario.
-
-        Returns:
-            No se
-        """
-        try:
-
-            # Validacion de datos recibidos
-            data = request.get_json()
-            if not data:
-                return jsonify({"error": "No se enviaron datos"}), 400
-            
-            self.logger.debug(f"Datos recibidos: {data}")
-
-            # Validacion de los datos en schema
-            #self.schema.load(data)
-            self.logger.debug("Ya se validaron los datos correctamente")
-            self.logger.debug(data)
-
-            # Guardar en base de datos
-            # Llamar al servicio
-            #vpnmayo_registro, status_code = self.service.add_VPNMayo(datosProcesados)
-
-            """
-            if status_code == 201:
-                noformato = vpnmayo_registro.get('_id')
-                epoch = vpnmayo_registro.get('epoch')
-                self.logger.info(f"Registro VPN Mayo agregado con ID: {noformato}")
-
-                # Enviar informacion al frontend
-                return jsonify({"message": "Generando PDF", "id": noformato, "epoch": epoch}), 200
-            else:
-                self.logger.error(f"Error agregando el registro a la base de datos")
-                # Enviar informacion al frontend
-                return jsonify({"error": "Error agregando el registro a la base de datos"}), 500 """
-            
-            return jsonify({"message": "Registrado correctamente"}), 200
             
         except ValidationError as err:
             messages = err.messages

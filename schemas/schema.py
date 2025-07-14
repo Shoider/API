@@ -10,4 +10,5 @@ class Schema(Schema):
     states_created = fields.Integer(required=True)
     state_packets = fields.Integer(required=True)
     state_bytes = fields.Integer(required=True)
-    last_field = fields.Integer(required=False) # Si el último campo es opcional o no siempre significativo
+    input_output = fields.Integer(required=True)
+    last_field = fields.Integer(required=False)

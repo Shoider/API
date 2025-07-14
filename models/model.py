@@ -40,7 +40,7 @@ class RuleMetric(Base):
     states_created = Column(BigInteger, nullable=False)
     state_packets = Column(BigInteger, nullable=False)
     state_bytes = Column(BigInteger, nullable=False)
-    last_field = Column(BigInteger, nullable=True)
+    input_output = Column(BigInteger, nullable=True)
 
     __table_args__ = (
         Index('idx_rule_metrics_rule_id', 'rule_id'),
