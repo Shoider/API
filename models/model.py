@@ -8,10 +8,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.schema import Index
 
-# Define la base declarativa
 Base = declarative_base()
 
-# Define tu modelo de tabla para 'rules'
 class Rule(Base):
     __tablename__ = 'rules'
 
@@ -27,7 +25,6 @@ class Rule(Base):
     def __repr__(self):
         return f"<Rule(rule_id={self.rule_id}, rule_label='{self.rule_label}', created_at='{self.created_at}')>"
 
-# Define tu modelo de tabla para 'rule_metrics'
 class RuleMetric(Base):
     __tablename__ = 'rule_metrics'
 
@@ -51,7 +48,6 @@ class RuleMetric(Base):
     def __repr__(self):
         return f"<RuleMetric(id={self.id}, rule_id={self.rule_id}, timestamp='{self.timestamp}')>"
     
-# Define tu modelo de tabla para 'inactive_rule_log'
 class InactiveRuleLog(Base):
     __tablename__ = 'inactive_rule_log'
 
@@ -67,7 +63,6 @@ class InactiveRuleLog(Base):
     def __repr__(self):
         return f"<InactiveRuleLog(id={self.log_id}, rule_id='{self.rule_id}', created_at='{self.created_at}')>"
     
-# Define tu modelo de tabla para 'monthly_execution_counts'
 class MonthlyExecutionCount(Base):
     __tablename__ = 'monthly_execution_counts'
 
@@ -86,7 +81,7 @@ class MonthlyExecutionCount(Base):
 
 
 class BDModel:
-    """Model class to connect to PostgreSQL and manage SQLAlchemy engine/sessions."""
+    """Clase para conectarse a PostgreSQL y gestionar SQLAlchemy engine/sessions."""
     def __init__(self):
         self.engine = None
         self.Session = None
@@ -94,18 +89,15 @@ class BDModel:
         self.db_name = "test_db"
 
     def connect_to_database(self):
-        """
-        Function to connect to PostgreSQL and set up the SQLAlchemy engine.
-        Also ensures the table schema is created if it doesn't exist.
-        """
+        """Funcion para conectarse a PostgreSQL y iniciar SQLAlchemy engine."""
         db_user = os.environ.get("POSTGRES_USER", "api_user")
         db_password = os.environ.get("POSTGRES_PASSWORD", "pass")
         db_host = os.environ.get("POSTGRES_HOST", "localhost")
         db_port = os.environ.get("POSTGRES_PORT", "5002")
 
         if not all([db_user, db_password, db_host]):
-            self.logger.critical("Database environment variables are required: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")
-            raise ValueError("Set environment variables: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")
+            self.logger.critical("No se agregaron las variables de entorno de la Base de Datos: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")
+            raise ValueError("Agrega las variables: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")
 
         DATABASE_URL = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{self.db_name}"
 
@@ -115,34 +107,34 @@ class BDModel:
             self.engine = create_engine(DATABASE_URL)
             with self.engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
-                self.logger.info("Connected to PostgreSQL successfully.")
+                self.logger.info("Conectado a PostgreSQL exitosamente.")
             
             # Crear las tablas si no existen (importante: Las tablas deben estar definidas)
             Base.metadata.create_all(self.engine)
-            self.logger.info(f"Table '{Rule.__tablename__}' ensured to exist.")
-            self.logger.info(f"Table '{RuleMetric.__tablename__}' ensured to exist.")
-            self.logger.info(f"Table '{InactiveRuleLog.__tablename__}' ensured to exist.")
-            self.logger.info(f"Table '{MonthlyExecutionCount.__tablename__}' ensured to exist.")
+            self.logger.debug(f"Table '{Rule.__tablename__}' asegurate que exista.")
+            self.logger.debug(f"Table '{RuleMetric.__tablename__}' asegurate que exista.")
+            self.logger.debug(f"Table '{InactiveRuleLog.__tablename__}' asegurate que exista.")
+            self.logger.debug(f"Table '{MonthlyExecutionCount.__tablename__}' asegurate que exista.")
 
             self.Session = sessionmaker(bind=self.engine)
 
         except SQLAlchemyError as e:
-            self.logger.critical(f"Error connecting to PostgreSQL or creating table: {e}")
+            self.logger.critical(f"Error conectando a PostgreSQL o creando tabla: {e}")
             raise
         except Exception as e:
-            self.logger.critical(f"An unexpected error occurred during DB connection: {e}")
+            self.logger.critical(f"Ocurrio un error durante la conexion a PostgreSQL: {e}")
             raise
 
     def close_connection(self):
-        """Function to close the connection to PostgreSQL."""
+        """Funcion para cerrar la conexion a PostgreSQL."""
         if self.engine:
             self.engine.dispose()
-            self.logger.info("PostgreSQL engine disposed (connections closed).")
+            self.logger.info("PostgreSQL engine detenido (conexiones cerradas).")
 
     def get_session(self):
-        """Provides a new SQLAlchemy session."""
+        """Crea una nueva SQLAlchemy session."""
         if self.Session:
             return self.Session()
         else:
-            self.logger.critical("Database session factory not initialized. Call connect_to_database first.")
-            raise RuntimeError("Database not connected.")
+            self.logger.critical("No se ha iniciado la sesion. Usa connect_to_database primero.")
+            raise RuntimeError("Base de datos no conectada.")
