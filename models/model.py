@@ -86,14 +86,14 @@ class BDModel:
         self.engine = None
         self.Session = None
         self.logger = Logger()
-        self.db_name = "test_db"
+        self.db_name = "pf_sense"
 
     def connect_to_database(self):
         """Funcion para conectarse a PostgreSQL y iniciar SQLAlchemy engine."""
         db_user = os.environ.get("POSTGRES_USER", "api_user")
         db_password = os.environ.get("POSTGRES_PASSWORD", "pass")
         db_host = os.environ.get("POSTGRES_HOST", "localhost")
-        db_port = os.environ.get("POSTGRES_PORT", "5002")
+        db_port = os.environ.get("POSTGRES_PORT", "5000")
 
         if not all([db_user, db_password, db_host]):
             self.logger.critical("No se agregaron las variables de entorno de la Base de Datos: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST")

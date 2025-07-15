@@ -18,7 +18,7 @@ class PFRoute(Blueprint):
     def register_routes(self):
         """Function to register the routes"""
         self.route("/api/v1/data", methods=["POST"])(self.update)
-        self.route("/api/v1/inactive", methods=["GET"])(self.InactiveRules)
+        #self.route("/api/v1/inactive", methods=["GET"])(self.InactiveRules)
         self.route("/api/v1/healthcheck", methods=["GET"])(self.healthcheck)
 
     def fetch_request_data(self):
@@ -195,11 +195,8 @@ class PFRoute(Blueprint):
 
             self.logger.debug("Llamando al servicio")
 
-
-
             result = self.service.dasdasd
 
-            
             self.logger.debug("Tabla de reglas sin uso actualizada")
 
             self.logger.info(f"Datos agregados a tabla sin uso {data}")

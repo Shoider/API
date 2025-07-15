@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.13.4-alpine3.22
 
 WORKDIR /app
 
@@ -13,10 +13,6 @@ RUN mkdir -p /app/logs && \
     chown -R app:app /app/logs && \
     chmod -R 775 /app/logs
 
-RUN mkdir -p /app/data && \
-    chown -R app:app /app/data && \
-    chmod -R 777 /app/data
-
 # Instalar dependencias del sistema
 RUN apt-get update && \
     apt-get install -y tzdata curl faketime && \
@@ -30,4 +26,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl 
 
 USER app
 
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 4", "app:app"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 1", "app:app"]
