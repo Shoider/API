@@ -136,65 +136,6 @@ class Service:
         session.add_all(log_objects) # Agregar todos a la vez
         self.logger.debug(f"{len(log_objects)} inactive rule logs agregadas en batch.")
 
-    def get_inactive_rules(self, start_date: datetime, end_date: datetime) -> list[dict]:
-        session = None
-        inactive_rules = []
-        try:
-            session = self.db_model.get_session()
-            
-            # --- Consulta SQL para identificar reglas inactivas con funciones de ventana ---
-            # SQLAlchemy puede construir esto, pero a veces es más claro y fácil
-            # usar text() para consultas complejas con funciones de ventana,
-            # especialmente al principio.
-
-            # Tolerancia como una constante o parámetro
-            BYTES_TOLERANCE = 100
-
-            # Nota: Los placeholders ':start_date' y ':end_date' son para seguridad (prevención de SQL Injection)
-            sql_query = text(f"""
-                SELECT DISTINCT
-                    subquery.rule_id,
-                    subquery.rule_label
-                FROM (
-                    SELECT
-                        rm.rule_id,
-                        rm.rule_label,
-                        FIRST_VALUE(rm.bytes_matched) OVER (PARTITION BY rm.rule_id ORDER BY rm.timestamp ASC) AS first_bytes_matched,
-                        LAST_VALUE(rm.bytes_matched) OVER (PARTITION BY rm.rule_id ORDER BY rm.timestamp ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_bytes_matched
-                    FROM
-                        rule_metrics rm
-                    WHERE
-                        rm.timestamp >= :start_date AND rm.timestamp <= :end_date
-                ) AS subquery
-                WHERE
-                    ABS(subquery.last_bytes_matched - subquery.first_bytes_matched) < :tolerance; -- Condición de inactividad con tolerancia
-            """)
-            
-            # Ejecutar la consulta con parámetros
-            result = session.execute(
-                sql_query,
-                {"start_date": start_date, "end_date": end_date, "tolerance": BYTES_TOLERANCE}
-            ).fetchall()
-
-            self.logger.debug(f"Resultados: {result}")
-
-            # Convertir los resultados a una lista de diccionarios
-            for row in result:
-                inactive_rules.append({"rule_id": row.rule_id, "rule_label": row.rule_label})
-
-            self.logger.info(f"Found {len(inactive_rules)} inactive rules between {start_date} and {end_date}.")
-            return inactive_rules
-
-        except SQLAlchemyError as e:
-            self.logger.critical(f"Database error during inactive rules analysis: {e}")
-            return []
-        except Exception as e:
-            self.logger.critical(f"An unexpected error occurred during inactive rules analysis: {e}")
-            return []
-        finally:
-            if session:
-                session.close()
-
     def get_inactive_rules_from_this_batch(self, rule_metrics_list: list[dict]) -> list[dict]:
         """
         Filters the given list of rule metrics to identify rules with 0 bytes_matched.

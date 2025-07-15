@@ -16,7 +16,7 @@ class Rule(Base):
     rule_id = Column(BigInteger, primary_key=True)
     rule_label = Column(String(255), nullable=False)
     rule_description = Column(String(500), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         Index('idx_rules_rule_label', 'rule_label'),
@@ -29,7 +29,8 @@ class RuleMetric(Base):
     __tablename__ = 'rule_metrics'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    timestamp = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     rule_id = Column(BigInteger, ForeignKey('rules.rule_id', ondelete='RESTRICT'), nullable=False)
     evaluations = Column(BigInteger, nullable=False)
     packets_matched = Column(BigInteger, nullable=False)
@@ -53,7 +54,7 @@ class InactiveRuleLog(Base):
 
     log_id = Column(Integer, primary_key=True, autoincrement=True)
     rule_id = Column(BigInteger, ForeignKey('rules.rule_id', ondelete='RESTRICT'), nullable=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         Index('idx_inactive_rule_log_rule_id', 'rule_id'),
@@ -69,7 +70,7 @@ class MonthlyExecutionCount(Base):
     count_id = Column(Integer, primary_key=True, autoincrement=True)
     month_start_date = Column(Date, nullable=False, unique=True) # Unique constraint a nivel de columna
     execution_count = Column(Integer, nullable=False, default=0)
-    last_updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    last_updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         # No se necesita Index explícito si month_start_date ya es UNIQUE
@@ -78,7 +79,6 @@ class MonthlyExecutionCount(Base):
 
     def __repr__(self):
         return f"<MonthlyExecutionCount(month={self.month_start_date}, count={self.execution_count})>"
-
 
 class BDModel:
     """Clase para conectarse a PostgreSQL y gestionar SQLAlchemy engine/sessions."""
