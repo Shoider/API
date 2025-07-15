@@ -30,7 +30,6 @@ class RuleMetric(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     rule_id = Column(BigInteger, ForeignKey('rules.rule_id', ondelete='RESTRICT'), nullable=False)
     evaluations = Column(BigInteger, nullable=False)
     packets_matched = Column(BigInteger, nullable=False)
