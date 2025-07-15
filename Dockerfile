@@ -3,20 +3,19 @@ FROM python:3.13.4-alpine3.22
 WORKDIR /app
 
 # Crear grupo y usuario 'app'
-RUN groupadd -g 1000 app && \
-    useradd -m -u 1000 -g app app
+RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app
 
 # Copiar archivos y cambiar propietario
-COPY . .
+COPY --chown=app . .
 
 RUN mkdir -p /app/logs && \
     chown -R app:app /app/logs && \
     chmod -R 775 /app/logs
 
 # Instalar dependencias del sistema
-RUN apt-get update && \
-    apt-get install -y tzdata curl faketime && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && \
+    apk add --no-cache tzdata curl && \
+    rm -rf /var/cache/apk/*
 
 RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 
