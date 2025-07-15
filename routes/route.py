@@ -125,10 +125,10 @@ class PFRoute(Blueprint):
 
             if (result == True):
                 self.logger.info("Registro exitoso")
-                return jsonify({"message": "Registro exitoso", "data": validated_data}), 200
+                return jsonify({"message": "Registro exitoso", "data": validated_data, "time": datetime.now().isoformat()}), 200
             else:
                 self.logger.info("Ocurrio un error al guardar la informacion en la base de datos")
-                return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data}), 400
+                return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data, "time": datetime.now().isoformat()}), 400
             
         except ValidationError as err:
             messages = err.messages
@@ -136,10 +136,10 @@ class PFRoute(Blueprint):
             self.logger.info(f"Errores de validación completos: {messages}")
             
             # Otro error de validacion
-            return jsonify({"error": "Datos invalidos"}), 422
+            return jsonify({"error": "Datos invalidos", "time": datetime.now().isoformat()}), 422
         except Exception as e:
             self.logger.critical(f"Error critico: {e}")
-            return jsonify({"error": "Error interno"}), 500
+            return jsonify({"error": "Error interno", "time": datetime.now().isoformat()}), 500
         finally:
             # Eliminar el directorio temporal
             self.logger.info("Función finalizada")

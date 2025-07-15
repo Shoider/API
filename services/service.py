@@ -121,7 +121,7 @@ class Service:
                 states_created=metric_data['states_created'],
                 state_packets=metric_data['state_packets'],
                 state_bytes=metric_data['state_bytes'],
-                input_output=metric_data.get('input_output')
+                input_output=metric_data('input_output')
             ))
         session.add_all(metric_objects) # Mejorar rendimiento: agregar todos a la vez
         self.logger.debug(f"{len(metric_objects)} rule metrics agregadas en batch.")
