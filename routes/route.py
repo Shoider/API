@@ -18,7 +18,6 @@ class PFRoute(Blueprint):
     def register_routes(self):
         """Function to register the routes"""
         self.route("/api/v1/data", methods=["POST"])(self.update)
-        #self.route("/api/v1/inactive", methods=["GET"])(self.InactiveRules)
         self.route("/api/v1/healthcheck", methods=["GET"])(self.healthcheck)
 
     def fetch_request_data(self):
