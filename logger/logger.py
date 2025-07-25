@@ -3,7 +3,7 @@ import os
 
 class Logger:
 
-    def __init__(self, log_file="/app/logs/api.log", level=log.INFO):
+    def __init__(self, log_file="/app/logs/api.log", level=log.DEBUG):
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
         
         log.basicConfig(
