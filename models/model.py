@@ -85,8 +85,8 @@ class BDModel:
         self.engine = None
         self.Session = None
         self.logger = Logger()
-        #self.db_name = "pf_sense"
-        self.db_name = "pf_sense_report"
+        self.db_name = "pf_sense"
+        #self.db_name = "pf_sense_report"
 
     def connect_to_database(self):
         """Funcion para conectarse a PostgreSQL y iniciar SQLAlchemy engine."""
