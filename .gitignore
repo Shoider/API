@@ -186,3 +186,4 @@ tsconfig.tsbuildinfo
 .ncurc.js
 knip.jsonc
 schema.log
+docker-compose.yaml
