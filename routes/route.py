@@ -2,7 +2,11 @@ from flask import Blueprint, request, jsonify
 from logger.logger import Logger
 from marshmallow import ValidationError
 from datetime import datetime, time
+from functools import wraps
+import os
 import re
+
+AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "tu_token_secreto")
 
 class PFRoute(Blueprint):
     """Class to handle the routes"""
@@ -19,6 +23,15 @@ class PFRoute(Blueprint):
         """Function to register the routes"""
         self.route("/api/v1/data", methods=["POST"])(self.update)
         self.route("/api/v1/healthcheck", methods=["GET"])(self.healthcheck)
+
+    def token_required(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            if not token or token != f"Bearer {AUTH_TOKEN}":
+                return jsonify({"error": "No autorizado"}), 401
+            return f(*args, **kwargs)
+        return decorated
 
     def fetch_request_data(self):
         """Function to fetch the request data"""
@@ -86,6 +99,7 @@ class PFRoute(Blueprint):
                 merged[rule_id] = rule.copy()
         return list(merged.values())
 
+    @token_required
     def update(self):
         """
         Esta ruta debera de recibir datos y mostrarlos
