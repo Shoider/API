@@ -133,12 +133,17 @@ class PFRoute(Blueprint):
             validated_data = schema_instance.load(filtered_data)
             self.logger.debug(f"Datos validados correctamente: {validated_data}")
 
+            # Validacion de que existan datos antes de llamar al servicio
+            if not validated_data:
+                self.logger.info("No hay datos nuevos para insertar")
+                return jsonify({"message": "No hay datos nuevos para insertar", "time": datetime.now().isoformat()}), 200
+
             # Se le llama al servicio para guardar los datos
             result = self.service.add_metrics(validated_data)
 
             if (result == True):
                 self.logger.info("Registro exitoso")
-                return jsonify({"message": "Registro exitoso", "data": validated_data, "time": datetime.now().isoformat()}), 200
+                return jsonify({"message": "Registro exitoso", "data": validated_data, "time": datetime.now().isoformat()}), 204
             else:
                 self.logger.info("Ocurrio un error al guardar la informacion en la base de datos")
                 return jsonify({"message": "Ocurrio un error al guardar la informacion en la base de datos", "data": validated_data, "time": datetime.now().isoformat()}), 400
