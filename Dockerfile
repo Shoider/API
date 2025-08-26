@@ -1,33 +1,48 @@
-FROM python:latest
+# Usa una imagen base de Ubuntu
+FROM ubuntu:latest
 
-WORKDIR /app
+# --- FASE DE PREPARACIÓN E INSTALACIÓN ---
 
-# Crear grupo y usuario 'app'
-RUN groupadd -g 1000 app && \
-    useradd -m -u 1000 -g app app
-
-# Copiar archivos y cambiar propietario
-COPY . .
-
-RUN mkdir -p /app/logs && \
-    chown -R app:app /app/logs && \
-    chmod -R 775 /app/logs
-
-RUN mkdir -p /app/data && \
-    chown -R app:app /app/data && \
-    chmod -R 777 /app/data
-
-# Instalar dependencias del sistema
+# Actualiza la lista de paquetes e instala OpenSSH-server, curl y sudo
+# Se usa `-y` para aceptar automáticamente las instalaciones
+# `mkdir -p /var/run/sshd` es necesario para que el servicio SSH pueda iniciarse
 RUN apt-get update && \
-    apt-get install -y tzdata curl faketime && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y openssh-server curl sudo && \
+    mkdir -p /var/run/sshd
 
-RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
+COPY . /app
 
-EXPOSE 8000
+# --- CONFIGURACIÓN DE USUARIOS Y AUTENTICACIÓN ---
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail http://localhost:8000/api/v1/healthcheck || exit 1
+# 1. Configuración para el usuario ROOT:
+# Establece una contraseña inicial para root (útil para acceso local dentro del contenedor si es necesario),
+# pero el acceso SSH por contraseña será deshabilitado.
+RUN echo 'root:rootpass' | chpasswd
 
-USER app
+# Modifica la configuración de SSH para deshabilitar el login de root con contraseña
+# 'PermitRootLogin without-password' permite la autenticación solo con claves SSH para root.
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin without-password/' /etc/ssh/sshd_config
 
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-w 4", "app:app"]
+# 2. Configuración para el usuario ADMIN:
+# Define una variable de entorno para la contraseña del usuario admin.
+# Puedes pasarla durante el build con `--build-arg ADMIN_PASSWORD=tu_nueva_contraseña`.
+ARG ADMIN_PASSWORD=pass
+
+# Crea el usuario 'admin', le asigna un shell bash y lo añade al grupo sudo.
+# Establece la contraseña para el usuario 'admin'.
+RUN useradd -ms /bin/bash admin && \
+    echo "admin:$ADMIN_PASSWORD" | chpasswd && \
+    adduser admin sudo
+
+# Asegura que la autenticación por contraseña esté habilitada globalmente para SSH.
+# Esto es necesario para que el usuario 'admin' pueda usar contraseñas.
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# --- LIMPIEZA Y EJECUCIÓN ---
+
+# Expone el puerto 22, el puerto estándar para SSH.
+EXPOSE 22
+
+# Comando por defecto para iniciar el servicio SSH en segundo plano
+# `-D` mantiene sshd en primer plano, lo que es necesario para que el contenedor no se cierre.
+CMD ["/usr/sbin/sshd", "-D"]

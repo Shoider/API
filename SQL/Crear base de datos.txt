@@ -1,0 +1,47 @@
+# Evitar exponer la contraseña
+export POSTGRES_PASSWORD=$(openssl rand -base64 16)
+
+# Muestra la contraseña segura para gaurdarla
+echo $POSTGRES_PASSWORD
+
+# Crea el volumen para la persistencia de datos
+docker volume create pgdata
+
+# Instalar y generar certificados para 30 dias
+sudo apt update && sudo apt install openssl
+openssl req -new -x509 -days 30 -nodes -text -out server.crt -keyout server.key -subj "/CN=172.29.206.227"
+
+# Ejecuta imagen
+docker run --name mypostgres \
+  -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+  -d -p 5000:5432 \
+  -v pgdata:/var/lib/postgresql/data \
+  -v ~/pg-certs/server.crt:/var/lib/postgresql/server.crt \
+  -v ~/pg-certs/server.key:/var/lib/postgresql/server.key \
+  postgres
+
+# Entrar al contenedor local
+docker exec -it mypostgres bash
+
+# Inicia sesion
+psql -U postgres -d postgres
+psql -U admin -d postgres
+
+psql -U proccess_user -d test_db
+
+# Poner la contraseña aleatoria que muestre este comando
+echo $POSTGRES_PASSWORD
+
+# Crear usuario para conectarme remotamente
+CREATE USER admin WITH PASSWORD 'mGPVu8H0n4eXX5lrc5KRjw==';
+# CREATE DATABASE mypostgres OWNER admin;
+
+
+
+##################################
+
+NOTAS
+
+# Ejecutar procediminto almacenado
+CALL analyze_monthly_inactive_rules(yyyy-mm);
+CALL analyze_monthly_inactive_rules(2025, 7);

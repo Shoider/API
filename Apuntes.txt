@@ -1,0 +1,91 @@
+date -s "2025-07-10 10:00:00"
+# Ejemplo: date -s "2025-07-15 10:00:00"
+
+curl -I -H "Authorization: Bearer Mazapan" "http://172.29.206.227:8000/api/v1/data"
+
+# Las. IP's
+
+Servidor: 172.29.206.227
+Nidia: 172.29.152.157
+
+# Pasos para enviar correo:
+
+# 1 Conectarse por telnet
+telnet 172.29.150.2 25
+Trying 172.29.150.2...
+Connected to CE0010EX01.cna.gob.mx.
+Escape character is '^]'.
+220 CE0010EX01.cna.gob.mx Microsoft ESMTP MAIL Service ready at Thu, 17 Jul 2025 11:12:10 -0600
+
+# 2 Mandar hello
+helo pfsense
+250 CE0010EX01.cna.gob.mx Hello [172.29.152.29]
+
+# 3 Remitente
+mail from:requerimiento.seguridad06@conagua.gob.mx
+250 2.1.0 Sender OK
+
+# 4 Receptor
+rcpt to:req.seguridad17@conagua.gob.mx
+250 2.1.5 Recipient OK
+
+# 5 Datos
+Subject: Test Email
+
+This is a test.
+.
+250 2.6.0 <66f5dda8-f1b0-45d8-bb12-6c7352347a9b@CE0010EX01.cna.gob.mx> [InternalId=32263794327873, Hostname=CE0010EX04.cna.gob.mx] 1575 bytes in 0.104, 14.652 KB/sec Queued mail for delivery
+
+# 6 Cerrar conexion
+quit
+221 2.0.0 Service closing transmission channel
+Connection closed by foreign host.
+
+# Pasos para enviar correo:
+
+# 1 Conectarse por telnet
+telnet 172.29.150.2 25
+
+# 2 Mandar hello
+helo pfsense
+
+# 3 Remitente
+mail from:requerimiento.seguridad06@conagua.gob.mx
+
+# 4 Receptor
+rcpt to:req.seguridad17@conagua.gob.mx
+
+# 5 Datos
+Subject: Test Email script
+
+This is a test.
+.
+
+# 6 Cerrar conexion
+quit
+
+# Error al mandar:
+[2.7.2-RELEASE][admin@pfSense.home.arpa]/root: telnet 172.29.150.2 25
+Trying 172.29.150.2...
+Connected to CE0010EX01.cna.gob.mx.
+Escape character is '^]'.
+220 CE0010EX01.cna.gob.mx Microsoft ESMTP MAIL Service ready at Mon, 21 Jul 2025 16:27:43 -0600
+helo pfsense
+250 CE0010EX01.cna.gob.mx Hello [172.29.152.29]
+mail from:pruebas.pfsense@conagua.gob.mx
+530 5.7.57 SMTP; Client was not authenticated to send anonymous mail during MAIL FROM
+Connection closed by foreign host.
+
+COSAS PARA MANDAR A INSTALAR
+[2.7.2-RELEASE][admin@pfSense.home.arpa]/root: pkg query -e '%a = 0' '%n' | head
+drm-510-kmod
+jq
+nano
+pfSense
+pfSense-base
+pfSense-boot
+pfSense-default-config
+pfSense-kernel-pfSense
+pfSense-pkg-Cron
+pfSense-pkg-RESTAPI
+[2.7.2-RELEASE][admin@pfSense.home.arpa]/root: 

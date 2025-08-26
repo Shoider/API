@@ -1,0 +1,387 @@
+
+pfctl -vvsr
+@0 scrub from any to <vpn_networks:*> fragment no reassemble
+  [ Evaluations: 15392996  Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@1 scrub from <vpn_networks:*> to any fragment no reassemble
+  [ Evaluations: 15392996  Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@2 scrub on vtnet0 inet all fragment reassemble
+  [ Evaluations: 15393000  Packets: 8146356   Bytes: 1403409242  States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@3 scrub on vtnet0 inet6 all fragment reassemble
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@4 scrub on vtnet1 inet all fragment reassemble
+  [ Evaluations: 7246652   Packets: 4780514   Bytes: 360027060   States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@5 scrub on vtnet1 inet6 all fragment reassemble
+  [ Evaluations: 5031      Packets: 5031      Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@6 scrub on vtnet2 inet all fragment reassemble
+  [ Evaluations: 2461107   Packets: 2446797   Bytes: 347775865   States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@7 scrub on vtnet2 inet6 all fragment reassemble
+  [ Evaluations: 1         Packets: 1         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@0 anchor "openvpn/*" all
+  [ Evaluations: 209131    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@1 anchor "ipsec/*" all
+  [ Evaluations: 209131    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@2 block drop in log quick inet from 169.254.0.0/16 to any label "Block IPv4 link-local" ridentifier 1000000101
+  [ Evaluations: 209131    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@3 block drop in log quick inet from any to 169.254.0.0/16 label "Block IPv4 link-local" ridentifier 1000000102
+  [ Evaluations: 97615     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@4 block drop in log inet all label "Default deny rule IPv4" ridentifier 1000000103
+  [ Evaluations: 97615     Packets: 8947      Bytes: 699550      States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: Mon Jul 14 12:11:40 2025 ]
+@5 block drop out log inet all label "Default deny rule IPv4" ridentifier 1000000104
+  [ Evaluations: 204105    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@6 block drop in log inet6 all label "Default deny rule IPv6" ridentifier 1000000105
+  [ Evaluations: 209131    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@7 block drop out log inet6 all label "Default deny rule IPv6" ridentifier 1000000106
+  [ Evaluations: 111516    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@8 pass quick inet6 proto ipv6-icmp all icmp6-type unreach keep state ridentifier 1000000107
+  [ Evaluations: 10053     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@9 pass quick inet6 proto ipv6-icmp all icmp6-type toobig keep state ridentifier 1000000107
+  [ Evaluations: 3         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@10 pass quick inet6 proto ipv6-icmp all icmp6-type neighbrsol keep state ridentifier 1000000107
+  [ Evaluations: 3         Packets: 1         Bytes: 72          States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@11 pass quick inet6 proto ipv6-icmp all icmp6-type neighbradv keep state ridentifier 1000000107
+  [ Evaluations: 2         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@12 pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echorep keep state ridentifier 1000000108
+  [ Evaluations: 2         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@13 pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000108
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@14 pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000108
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@15 pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000108
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@16 pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000108
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@17 pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echorep keep state ridentifier 1000000109
+  [ Evaluations: 1         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@18 pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state ridentifier 1000000109
+  [ Evaluations: 1         Packets: 2         Bytes: 112         States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@19 pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000109
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@20 pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000109
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@21 pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000109
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@22 pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echoreq keep state ridentifier 1000000110
+  [ Evaluations: 1         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@23 pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000110
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@24 pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000110
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@25 pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000110
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@26 pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000110
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@27 pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type echoreq keep state ridentifier 1000000111
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@28 pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000111
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@29 pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000111
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@30 pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000111
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@31 pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000111
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@32 pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echoreq keep state ridentifier 1000000112
+  [ Evaluations: 1         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@33 pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state ridentifier 1000000112
+  [ Evaluations: 1         Packets: 2         Bytes: 112         States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@34 pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000112
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@35 pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000112
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@36 pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000112
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@37 pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type echoreq keep state ridentifier 1000000113
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@38 pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type routersol keep state ridentifier 1000000113
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@39 pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000113
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@40 pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000113
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@41 pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000113
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@42 block drop log quick inet proto tcp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000114
+  [ Evaluations: 209128    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@43 block drop log quick inet proto udp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000114
+  [ Evaluations: 37218     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@44 block drop log quick inet proto tcp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000115
+  [ Evaluations: 199078    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@45 block drop log quick inet proto udp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000115
+  [ Evaluations: 37218     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@46 block drop log quick inet6 proto tcp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000116
+  [ Evaluations: 209128    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@47 block drop log quick inet6 proto udp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000116
+  [ Evaluations: 10050     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@48 block drop log quick inet6 proto tcp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000117
+  [ Evaluations: 10050     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@49 block drop log quick inet6 proto udp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000117
+  [ Evaluations: 10050     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@50 block drop log quick from <snort2c:0> to any label "Block snort2c hosts" ridentifier 1000000118
+  [ Evaluations: 209128    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@51 block drop log quick from any to <snort2c:0> label "Block snort2c hosts" ridentifier 1000000119
+  [ Evaluations: 209128    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@52 block drop in log quick proto tcp from <sshguard:0> to (self:9) port = ssh label "sshguard" ridentifier 1000000301
+  [ Evaluations: 209128    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@53 block drop in log quick proto tcp from <sshguard:0> to (self:9) port = https label "GUI Lockout" ridentifier 1000000351
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@54 block drop in log quick from <virusprot:0> to any label "virusprot overload table" ridentifier 1000000400
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@55 block drop in log on ! vtnet0 inet from 192.168.200.0/24 to any ridentifier 1000001470
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@56 block drop in log inet from 192.168.200.254 to any ridentifier 1000001470
+  [ Evaluations: 97615     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@57 block drop in log on vtnet0 inet6 from fe80::a00:27ff:fe5f:8123 to any ridentifier 1000001470
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@58 pass in quick on vtnet1 proto udp from any port = bootps to any port = bootpc keep state label "allow dhcp replies in UNTRUST" ridentifier 1000001511
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@59 pass out quick on vtnet1 proto udp from any port = bootpc to any port = bootps keep state label "allow dhcp client out UNTRUST" ridentifier 1000001512
+  [ Evaluations: 106488    Packets: 26        Bytes: 11752       States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 13    ]
+  [ Last Active Time: Mon Jul 14 01:36:44 2025 ]
+@60 pass in quick on vtnet1 inet6 proto udp from fe80::/10 port = dhcpv6-client to fe80::/10 port = dhcpv6-client keep state label "allow dhcpv6 client in UNTRUST" ridentifier 1000001513
+  [ Evaluations: 20804     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@61 pass in quick on vtnet1 proto udp from any port = dhcpv6-server to any port = dhcpv6-client keep state label "allow dhcpv6 client in UNTRUST" ridentifier 1000001514
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@62 pass out quick on vtnet1 proto udp from any port = dhcpv6-client to any port = dhcpv6-server keep state label "allow dhcpv6 client out UNTRUST" ridentifier 1000001515
+  [ Evaluations: 20804     Packets: 5028      Bytes: 583248      States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 5024  ]
+  [ Last Active Time: N/A ]
+@63 block drop in log on ! vtnet1 inet from 10.0.3.0/24 to any ridentifier 1000002520
+  [ Evaluations: 204090    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@64 block drop in log inet from 10.0.3.15 to any ridentifier 1000002520
+  [ Evaluations: 194429    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@65 block drop in log on vtnet1 inet6 from fe80::a00:27ff:feaf:ad40 to any ridentifier 1000002520
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@66 block drop in log on ! vtnet2 inet from 192.168.100.0/24 to any ridentifier 1000003570
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@67 block drop in log inet from 192.168.100.254 to any ridentifier 1000003570
+  [ Evaluations: 97615     Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@68 block drop in log on vtnet2 inet6 from fe80::a00:27ff:fe9c:9865 to any ridentifier 1000003570
+  [ Evaluations: 102640    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@69 pass in on lo0 inet all flags S/SA keep state label "pass IPv4 loopback" ridentifier 1000003611
+  [ Evaluations: 102640    Packets: 2         Bytes: 100         States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@70 pass out on lo0 inet all flags S/SA keep state label "pass IPv4 loopback" ridentifier 1000003612
+  [ Evaluations: 101451    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@71 pass in on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback" ridentifier 1000003613
+  [ Evaluations: 9662      Packets: 5028      Bytes: 583248      States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 5024  ]
+  [ Last Active Time: N/A ]
+@72 pass out on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback" ridentifier 1000003614
+  [ Evaluations: 9661      Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@73 pass out inet all flags S/SA keep state allow-opts label "let out anything IPv4 from firewall host itself" ridentifier 1000003615
+  [ Evaluations: 199065    Packets: 4859      Bytes: 2768998     States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: Mon Jul 14 09:23:48 2025 ]
+@74 pass out inet6 all flags S/SA keep state allow-opts label "let out anything IPv6 from firewall host itself" ridentifier 1000003616
+  [ Evaluations: 101450    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@75 pass out route-to (vtnet1 10.0.3.2) inet from 10.0.3.15 to ! 10.0.3.0/24 flags S/SA keep state allow-opts label "let out anything from firewall host itself" ridentifier 1000003711
+  [ Evaluations: 101450    Packets: 1264450   Bytes: 364800104   States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 96675 ]
+  [ Last Active Time: Mon Jul 14 12:54:20 2025 ]
+@76 pass in quick on vtnet2 proto tcp from any to (vtnet2:2) port = https flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+  [ Evaluations: 204090    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@77 pass in quick on vtnet2 proto tcp from any to (vtnet2:2) port = http flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@78 pass in quick on vtnet2 proto tcp from any to (vtnet2:2) port = ssh flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+  [ Evaluations: 0         Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+@79 anchor "userrules/*" all
+  [ Evaluations: 204090    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]
+  
+@80 pass in log quick on vtnet1 reply-to (vtnet1 10.0.3.2) inet proto tcp from any to (self:4) port = https flags S/SA keep state label "USER_RULE: 250515_ACCS_pfREST_Jesus_Torres" label "id:1747351304" ridentifier 1747351304
+  [ Evaluations: 204090    Packets: 70        Bytes: 16277       States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 3     ]
+  [ Last Active Time: Thu Jul 10 14:19:06 2025 ]
+@81 pass in log quick on vtnet1 reply-to (vtnet1 10.0.3.2) inet proto tcp from any to (self:4) port = ssh flags S/SA keep state label "USER_RULE: 250624_ACCS_x_SSH_Jesus_Torres" label "id:1750806086" ridentifier 1750806086
+  [ Evaluations: 5         Packets: 13038     Bytes: 1014174     States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 5     ]
+  [ Last Active Time: Mon Jul 14 12:57:45 2025 ]
+@82 pass in log quick on vtnet2 inet proto udp from <LAN__NETWORK:1> to <IPs_DNSs:2> port = domain keep state label "USER_RULE" label "id:1747262486" ridentifier 1747262486
+  [ Evaluations: 107268    Packets: 16124     Bytes: 2285393     States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 7890  ]
+  [ Last Active Time: Mon Jul 14 09:24:12 2025 ]
+@83 pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK:1> to ! <Redes_RFC1918:3> port = http flags S/SA keep state label "USER_RULE: 250513_de_TRST_a_pfSense_Jesus" label "id:1747182577" ridentifier 1747182577
+  [ Evaluations: 83410     Packets: 65500     Bytes: 13366689    States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 9725  ]
+  [ Last Active Time: Mon Jul 14 09:24:20 2025 ]
+@84 pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK:1> to ! <Redes_RFC1918:3> port = https flags S/SA keep state label "USER_RULE: 250513_de_TRST_a_pfSense_Jesus" label "id:1747182577" ridentifier 1747182577
+  [ Evaluations: 8164      Packets: 283335    Bytes: 187865941   States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 8045  ]
+  [ Last Active Time: Mon Jul 14 09:24:19 2025 ]
+@85 pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK:1> to any flags S/SA keep state label "USER_RULE" label "id:1747700339" ridentifier 1747700339
+  [ Evaluations: 62533     Packets: 867229    Bytes: 149298685   States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 62474 ]
+  [ Last Active Time: Mon Jul 14 09:24:13 2025 ]
+@86 pass in log quick on vtnet0 inet proto tcp from any to (self:4) port = https flags S/SA keep state label "USER_RULE" label "id:1747247184" ridentifier 1747247184
+  [ Evaluations: 16015     Packets: 4070256   Bytes: 1403409242  States: 1     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 450   ]
+  [ Last Active Time: Mon Jul 14 12:57:45 2025 ]
+@87 anchor "tftp-proxy/*" all
+  [ Evaluations: 115423    Packets: 0         Bytes: 0           States: 0     ]
+  [ Inserted: uid 0 pid 29472 State Creations: 0     ]
+  [ Last Active Time: N/A ]

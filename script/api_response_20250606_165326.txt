@@ -1,0 +1,60 @@
+{
+  "data": [
+    {
+      "bytes_matched": 0,
+      "evaluations": 208638,
+      "id": 1747351304,
+      "input_output": 13149,
+      "label": "250515_ACCS_pfREST_Jesus_Torres",
+      "packets_matched": 70,
+      "state_bytes": 35,
+      "state_packets": 3128,
+      "states_created": 35
+    },
+    {
+      "bytes_matched": 0,
+      "evaluations": 59,
+      "id": 1750806086,
+      "input_output": 687449,
+      "label": "250624_ACCS_x_SSH_Jesus_Torres",
+      "packets_matched": 13718,
+      "state_bytes": 6853,
+      "state_packets": 393152,
+      "states_created": 6865
+    },
+    {
+      "bytes_matched": 412,
+      "evaluations": 3023,
+      "id": 1747182577,
+      "input_output": 26108692,
+      "label": "250513_de_TRST_a_Internet_Jesus",
+      "packets_matched": 44154,
+      "state_bytes": 27730,
+      "state_packets": 2247722,
+      "states_created": 16424
+    },
+    {
+      "bytes_matched": 468,
+      "evaluations": 16,
+      "id": 1752519976,
+      "input_output": 0,
+      "label": "250714_de_TRST_a_Internet_Jesus",
+      "packets_matched": 9,
+      "state_bytes": 0,
+      "state_packets": 0,
+      "states_created": 0
+    },
+    {
+      "bytes_matched": 0,
+      "evaluations": 23,
+      "id": 1752521290,
+      "input_output": 0,
+      "label": "250714_de_TRST_a_Internet_x_UDP_Jesus",
+      "packets_matched": 62,
+      "state_bytes": 0,
+      "state_packets": 78016,
+      "states_created": 62
+    }
+  ],
+  "message": "Registro exitoso"
+}

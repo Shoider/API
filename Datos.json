@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "bytes_matched": 0,
+      "evaluations": 3820,
+      "id": 1747351304,
+      "label": "250515_ACCS_pfREST_Jesus_Torres",
+      "last_field": 0,
+      "packets_matched": 0,
+      "state_bytes": 0,
+      "state_packets": 0,
+      "states_created": 0
+    },
+    {
+      "bytes_matched": 1556710,
+      "evaluations": 7,
+      "id": 1750806086,
+      "label": "250624_ACCS_x_SSH_Jesus_Torres",
+      "last_field": 1015847,
+      "packets_matched": 18497,
+      "state_bytes": 9244,
+      "state_packets": 540863,
+      "states_created": 9253
+    },
+    {
+      "bytes_matched": 0,
+      "evaluations": 0,
+      "id": 1747182577,
+      "label": "250513_de_TRST_a_pfSense_Jesus",
+      "last_field": 0,
+      "packets_matched": 0,
+      "state_bytes": 0,
+      "state_packets": 0,
+      "states_created": 0
+    }
+  ],
+  "message": "Successfully registered"
+}

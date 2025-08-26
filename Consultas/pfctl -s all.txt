@@ -1,0 +1,276 @@
+[2.7.2-RELEASE][admin@pfSense.home.arpa]/root: pfctl -s all
+TRANSLATION RULES:
+no nat proto carp all
+nat-anchor "natearly/*" all
+nat-anchor "natrules/*" all
+nat on vtnet1 inet from 127.0.0.0/8 to any port = isakmp -> 10.0.3.15 static-port
+nat on vtnet1 inet from 192.168.200.0/24 to any port = isakmp -> 10.0.3.15 static-port
+nat on vtnet1 inet from 192.168.100.0/24 to any port = isakmp -> 10.0.3.15 static-port
+nat on vtnet1 inet6 from ::1 to any port = isakmp -> (vtnet1) round-robin static-port
+nat on vtnet1 inet from 127.0.0.0/8 to any -> 10.0.3.15 port 1024:65535
+nat on vtnet1 inet from 192.168.200.0/24 to any -> 10.0.3.15 port 1024:65535
+nat on vtnet1 inet from 192.168.100.0/24 to any -> 10.0.3.15 port 1024:65535
+nat on vtnet1 inet6 from ::1 to any -> (vtnet1) port 1024:65535 round-robin
+no rdr proto carp all
+rdr-anchor "tftp-proxy/*" all
+
+FILTER RULES:
+scrub from any to <vpn_networks> fragment no reassemble
+scrub from <vpn_networks> to any fragment no reassemble
+scrub on vtnet0 inet all fragment reassemble
+scrub on vtnet0 inet6 all fragment reassemble
+scrub on vtnet1 inet all fragment reassemble
+scrub on vtnet1 inet6 all fragment reassemble
+scrub on vtnet2 inet all fragment reassemble
+scrub on vtnet2 inet6 all fragment reassemble
+anchor "openvpn/*" all
+anchor "ipsec/*" all
+block drop in log quick inet from 169.254.0.0/16 to any label "Block IPv4 link-local" ridentifier 1000000101
+block drop in log quick inet from any to 169.254.0.0/16 label "Block IPv4 link-local" ridentifier 1000000102
+block drop in log inet all label "Default deny rule IPv4" ridentifier 1000000103
+block drop out log inet all label "Default deny rule IPv4" ridentifier 1000000104
+block drop in log inet6 all label "Default deny rule IPv6" ridentifier 1000000105
+block drop out log inet6 all label "Default deny rule IPv6" ridentifier 1000000106
+pass quick inet6 proto ipv6-icmp all icmp6-type unreach keep state ridentifier 1000000107
+pass quick inet6 proto ipv6-icmp all icmp6-type toobig keep state ridentifier 1000000107
+pass quick inet6 proto ipv6-icmp all icmp6-type neighbrsol keep state ridentifier 1000000107
+pass quick inet6 proto ipv6-icmp all icmp6-type neighbradv keep state ridentifier 1000000107
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echorep keep state ridentifier 1000000108
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000108
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000108
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000108
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000108
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echorep keep state ridentifier 1000000109
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state ridentifier 1000000109
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000109
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000109
+pass out quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000109
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type echoreq keep state ridentifier 1000000110
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000110
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000110
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000110
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000110
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type echoreq keep state ridentifier 1000000111
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routersol keep state ridentifier 1000000111
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type routeradv keep state ridentifier 1000000111
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type neighbrsol keep state ridentifier 1000000111
+pass in quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type neighbradv keep state ridentifier 1000000111
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type echoreq keep state ridentifier 1000000112
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routersol keep state ridentifier 1000000112
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000112
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000112
+pass in quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000112
+pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type echoreq keep state ridentifier 1000000113
+pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type routersol keep state ridentifier 1000000113
+pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type routeradv keep state ridentifier 1000000113
+pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type neighbrsol keep state ridentifier 1000000113
+pass in quick inet6 proto ipv6-icmp from :: to ff02::/16 icmp6-type neighbradv keep state ridentifier 1000000113
+block drop log quick inet proto tcp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000114
+block drop log quick inet proto udp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000114
+block drop log quick inet proto tcp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000115
+block drop log quick inet proto udp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000115
+block drop log quick inet6 proto tcp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000116
+block drop log quick inet6 proto udp from any port = 0 to any label "Block traffic from port 0" ridentifier 1000000116
+block drop log quick inet6 proto tcp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000117
+block drop log quick inet6 proto udp from any to any port = 0 label "Block traffic to port 0" ridentifier 1000000117
+block drop log quick from <snort2c> to any label "Block snort2c hosts" ridentifier 1000000118
+block drop log quick from any to <snort2c> label "Block snort2c hosts" ridentifier 1000000119
+block drop in log quick proto tcp from <sshguard> to (self) port = ssh label "sshguard" ridentifier 1000000301
+block drop in log quick proto tcp from <sshguard> to (self) port = https label "GUI Lockout" ridentifier 1000000351
+block drop in log quick from <virusprot> to any label "virusprot overload table" ridentifier 1000000400
+block drop in log on ! vtnet0 inet from 192.168.200.0/24 to any ridentifier 1000001470
+block drop in log inet from 192.168.200.254 to any ridentifier 1000001470
+block drop in log on vtnet0 inet6 from fe80::a00:27ff:fe5f:8123 to any ridentifier 1000001470
+pass in quick on vtnet1 proto udp from any port = bootps to any port = bootpc keep state label "allow dhcp replies in UNTRUST" ridentifier 1000001511
+pass out quick on vtnet1 proto udp from any port = bootpc to any port = bootps keep state label "allow dhcp client out UNTRUST" ridentifier 1000001512
+pass in quick on vtnet1 inet6 proto udp from fe80::/10 port = dhcpv6-client to fe80::/10 port = dhcpv6-client keep state label "allow dhcpv6 client in UNTRUST" ridentifier 1000001513
+pass in quick on vtnet1 proto udp from any port = dhcpv6-server to any port = dhcpv6-client keep state label "allow dhcpv6 client in UNTRUST" ridentifier 1000001514
+pass out quick on vtnet1 proto udp from any port = dhcpv6-client to any port = dhcpv6-server keep state label "allow dhcpv6 client out UNTRUST" ridentifier 1000001515
+block drop in log on ! vtnet1 inet from 10.0.3.0/24 to any ridentifier 1000002520
+block drop in log inet from 10.0.3.15 to any ridentifier 1000002520
+block drop in log on vtnet1 inet6 from fe80::a00:27ff:feaf:ad40 to any ridentifier 1000002520
+block drop in log on ! vtnet2 inet from 192.168.100.0/24 to any ridentifier 1000003570
+block drop in log inet from 192.168.100.254 to any ridentifier 1000003570
+block drop in log on vtnet2 inet6 from fe80::a00:27ff:fe9c:9865 to any ridentifier 1000003570
+pass in on lo0 inet all flags S/SA keep state label "pass IPv4 loopback" ridentifier 1000003611
+pass out on lo0 inet all flags S/SA keep state label "pass IPv4 loopback" ridentifier 1000003612
+pass in on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback" ridentifier 1000003613
+pass out on lo0 inet6 all flags S/SA keep state label "pass IPv6 loopback" ridentifier 1000003614
+pass out inet all flags S/SA keep state allow-opts label "let out anything IPv4 from firewall host itself" ridentifier 1000003615
+pass out inet6 all flags S/SA keep state allow-opts label "let out anything IPv6 from firewall host itself" ridentifier 1000003616
+pass out route-to (vtnet1 10.0.3.2) inet from 10.0.3.15 to ! 10.0.3.0/24 flags S/SA keep state allow-opts label "let out anything from firewall host itself" ridentifier 1000003711
+pass in quick on vtnet2 proto tcp from any to (vtnet2) port = https flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+pass in quick on vtnet2 proto tcp from any to (vtnet2) port = http flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+pass in quick on vtnet2 proto tcp from any to (vtnet2) port = ssh flags S/SA keep state label "anti-lockout rule" ridentifier 10002
+anchor "userrules/*" all
+pass in log quick on vtnet1 reply-to (vtnet1 10.0.3.2) inet proto tcp from any to (self) port = https flags S/SA keep state label "USER_RULE: 250515_ACCS_pfREST_Jesus_Torres" label "id:1747351304" ridentifier 1747351304
+pass in log quick on vtnet1 reply-to (vtnet1 10.0.3.2) inet proto tcp from any to (self) port = ssh flags S/SA keep state label "USER_RULE: 250624_ACCS_x_SSH_Jesus_Torres" label "id:1750806086" ridentifier 1750806086
+pass in log quick on vtnet2 inet proto udp from <LAN__NETWORK> to <IPs_DNSs> port = domain keep state label "USER_RULE" label "id:1747262486" ridentifier 1747262486
+pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK> to ! <Redes_RFC1918> port = http flags S/SA keep state label "USER_RULE: 250513_de_TRST_a_pfSense_Jesus" label "id:1747182577" ridentifier 1747182577
+pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK> to ! <Redes_RFC1918> port = https flags S/SA keep state label "USER_RULE: 250513_de_TRST_a_pfSense_Jesus" label "id:1747182577" ridentifier 1747182577
+pass in log quick on vtnet2 inet proto tcp from <LAN__NETWORK> to any flags S/SA keep state label "USER_RULE" label "id:1747700339" ridentifier 1747700339
+pass in log quick on vtnet0 inet proto tcp from any to (self) port = https flags S/SA keep state label "USER_RULE" label "id:1747247184" ridentifier 1747247184
+anchor "tftp-proxy/*" all
+No queue in use
+
+STATES:
+all icmp 10.0.3.15:55709 -> 10.0.3.2:55709       0:0
+all tcp 104.208.203.89:443 <- 192.168.100.10:49763       ESTABLISHED:ESTABLISHED
+all tcp 10.0.3.15:33071 (192.168.100.10:49763) -> 104.208.203.89:443       ESTABLISHED:ESTABLISHED
+all tcp 192.168.200.254:443 <- 192.168.200.10:64255       ESTABLISHED:ESTABLISHED
+all tcp 172.29.150.33:443 <- 192.168.100.10:51491       ESTABLISHED:ESTABLISHED
+all tcp 10.0.3.15:29692 (192.168.100.10:51491) -> 172.29.150.33:443       ESTABLISHED:ESTABLISHED
+all tcp 172.29.150.33:443 <- 192.168.100.10:51504       ESTABLISHED:ESTABLISHED
+all tcp 10.0.3.15:30271 (192.168.100.10:51504) -> 172.29.150.33:443       ESTABLISHED:ESTABLISHED
+all tcp 172.29.152.221:631 <- 192.168.100.10:51560       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:37880 (192.168.100.10:51560) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 20.42.65.91:443 <- 192.168.100.10:51561       TIME_WAIT:TIME_WAIT
+all tcp 10.0.3.15:4176 (192.168.100.10:51561) -> 20.42.65.91:443       TIME_WAIT:TIME_WAIT
+all tcp 187.214.30.34:80 <- 192.168.100.10:51562       TIME_WAIT:TIME_WAIT
+all tcp 10.0.3.15:50436 (192.168.100.10:51562) -> 187.214.30.34:80       TIME_WAIT:TIME_WAIT
+all tcp 20.42.65.91:443 <- 192.168.100.10:51563       TIME_WAIT:TIME_WAIT
+all tcp 10.0.3.15:52755 (192.168.100.10:51563) -> 20.42.65.91:443       TIME_WAIT:TIME_WAIT
+all tcp 172.29.152.221:631 <- 192.168.100.10:51564       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:16962 (192.168.100.10:51564) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 172.29.152.221:631 <- 192.168.100.10:51565       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:7114 (192.168.100.10:51565) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 172.29.152.221:631 <- 192.168.100.10:51566       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:54656 (192.168.100.10:51566) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 172.29.152.221:631 <- 192.168.100.10:51567       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:21220 (192.168.100.10:51567) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 172.29.152.221:631 <- 192.168.100.10:51568       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:32167 (192.168.100.10:51568) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 172.29.152.221:631 <- 192.168.100.10:51569       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:57381 (192.168.100.10:51569) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all udp 172.29.150.1:53 <- 192.168.100.10:64169       SINGLE:MULTIPLE
+all udp 10.0.3.15:10360 (192.168.100.10:64169) -> 172.29.150.1:53       MULTIPLE:SINGLE
+all tcp 23.73.185.64:80 <- 192.168.100.10:51570       ESTABLISHED:ESTABLISHED
+all tcp 10.0.3.15:40053 (192.168.100.10:51570) -> 23.73.185.64:80       ESTABLISHED:ESTABLISHED
+all tcp 172.29.152.221:631 <- 192.168.100.10:51571       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:26002 (192.168.100.10:51571) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:22 <- 10.0.3.2:62127       ESTABLISHED:ESTABLISHED
+all udp ff02::1:2[547] <- fe80::a00:27ff:feaf:ad40[546]       NO_TRAFFIC:SINGLE
+all udp fe80::a00:27ff:feaf:ad40[546] -> ff02::1:2[547]       SINGLE:NO_TRAFFIC
+all tcp 172.29.152.221:631 <- 192.168.100.10:51572       FIN_WAIT_2:FIN_WAIT_2
+all tcp 10.0.3.15:52938 (192.168.100.10:51572) -> 172.29.152.221:631       FIN_WAIT_2:FIN_WAIT_2
+
+INFO:
+Status: Enabled for 0 days 03:16:56           Debug: Urgent
+
+Interface Stats for vtnet2            IPv4             IPv6
+  Bytes In                         3683377                0
+  Bytes Out                        8209926              188
+  Packets In
+    Passed                           14178                2
+    Blocked                             69                0
+  Packets Out
+    Passed                               0                0
+    Blocked                              0                0
+
+State Table                          Total             Rate
+  current entries                       39               
+  searches                          141307           12.0/s
+  inserts                             4777            0.4/s
+  removals                            4738            0.4/s
+Counters
+  match                               5200            0.4/s
+  bad-offset                             0            0.0/s
+  fragment                               0            0.0/s
+  short                                  0            0.0/s
+  normalize                              0            0.0/s
+  memory                                 0            0.0/s
+  bad-timestamp                          0            0.0/s
+  congestion                             0            0.0/s
+  ip-option                              0            0.0/s
+  proto-cksum                            0            0.0/s
+  state-mismatch                         0            0.0/s
+  state-insert                           0            0.0/s
+  state-limit                            0            0.0/s
+  src-limit                              0            0.0/s
+  synproxy                               0            0.0/s
+  map-failed                             0            0.0/s
+
+LABEL COUNTERS:
+Block IPv4 link-local 5198 0 0 0 0 0 0 0
+Block IPv4 link-local 2225 0 0 0 0 0 0 0
+Default deny rule IPv4 2225 78 5766 78 5766 0 0 0
+Default deny rule IPv4 5097 0 0 0 0 0 0 0
+Default deny rule IPv6 5198 0 0 0 0 0 0 0
+Default deny rule IPv6 2973 0 0 0 0 0 0 0
+Block traffic from port 0 5195 0 0 0 0 0 0 0
+Block traffic from port 0 1157 0 0 0 0 0 0 0
+Block traffic to port 0 4995 0 0 0 0 0 0 0
+Block traffic to port 0 1157 0 0 0 0 0 0 0
+Block traffic from port 0 5195 0 0 0 0 0 0 0
+Block traffic from port 0 200 0 0 0 0 0 0 0
+Block traffic to port 0 200 0 0 0 0 0 0 0
+Block traffic to port 0 200 0 0 0 0 0 0 0
+Block snort2c hosts 5195 0 0 0 0 0 0 0
+Block snort2c hosts 5195 0 0 0 0 0 0 0
+sshguard 5195 0 0 0 0 0 0 0
+GUI Lockout 0 0 0 0 0 0 0 0
+virusprot overload table 2325 0 0 0 0 0 0 0
+allow dhcp replies in UNTRUST 2325 0 0 0 0 0 0 0
+allow dhcp client out UNTRUST 2870 0 0 0 0 0 0 0
+allow dhcpv6 client in UNTRUST 607 0 0 0 0 0 0 0
+allow dhcpv6 client in UNTRUST 0 0 0 0 0 0 0 0
+allow dhcpv6 client out UNTRUST 607 103 11948 0 0 103 11948 99
+pass IPv4 loopback 2325 2 100 1 60 1 40 0
+pass IPv4 loopback 2771 0 0 0 0 0 0 0
+pass IPv6 loopback 445 103 11948 103 11948 0 0 99
+pass IPv6 loopback 444 0 0 0 0 0 0 0
+let out anything IPv4 from firewall host itself 4995 567 210966 112 3259 455 207707 0
+let out anything IPv6 from firewall host itself 2770 0 0 0 0 0 0 0
+let out anything from firewall host itself 2770 32634 12405324 17785 8675037 14849 3730287 2287
+anti-lockout rule 5095 0 0 0 0 0 0 0
+anti-lockout rule 0 0 0 0 0 0 0 0
+anti-lockout rule 0 0 0 0 0 0 0 0
+USER_RULE: 250515_ACCS_pfREST_Jesus_Torres id:1747351304 5095 40 10559 20 1426 20 9133 1
+USER_RULE: 250624_ACCS_x_SSH_Jesus_Torres id:1750806086 1 399 46802 200 10893 199 35909 1
+USER_RULE id:1747262486 2667 506 76464 262 18855 244 57609 230
+USER_RULE: 250513_de_TRST_a_pfSense_Jesus id:1747182577 1967 2253 530022 1156 131341 1097 398681 316
+USER_RULE: 250513_de_TRST_a_pfSense_Jesus id:1747182577 376 8516 3743986 3631 1025491 4885 2718495 302
+USER_RULE id:1747700339 1231 20108 7537447 9125 2502466 10983 5034981 1217
+USER_RULE id:1747247184 472 29866 6229396 14735 1392324 15131 4837072 4
+
+TIMEOUTS:
+tcp.first                   120s
+tcp.opening                  30s
+tcp.established           86400s
+tcp.closing                 900s
+tcp.finwait                  45s
+tcp.closed                   90s
+tcp.tsdiff                   30s
+udp.first                    60s
+udp.single                   30s
+udp.multiple                 60s
+icmp.first                   20s
+icmp.error                   10s
+other.first                  60s
+other.single                 30s
+other.multiple               60s
+frag                         30s
+interval                     10s
+adaptive.start           240600 states
+adaptive.end             481200 states
+src.track                     0s
+
+LIMITS:
+states        hard limit   401000
+src-nodes     hard limit   401000
+frags         hard limit     5000
+table-entries hard limit   400000
+
+TABLES:
+ADM__NETWORK
+IPs_DNSs
+LAN__NETWORK
+Redes_RFC1918
+WAN__NETWORK
+bogons
+snort2c
+sshguard
+virusprot
+
+OS FINGERPRINTS:
+762 fingerprints loaded
